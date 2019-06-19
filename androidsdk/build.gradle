@@ -16,12 +16,8 @@ android {
 
     buildTypes {
         release {
-            // Enables code shrinking, obfuscation, and optimization for only
-            // your project's release build type.
+            // Enables proguard
             minifyEnabled true
-
-            // Includes the default ProGuard rules files that are packaged with
-            // the Android Gradle plugin.
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
