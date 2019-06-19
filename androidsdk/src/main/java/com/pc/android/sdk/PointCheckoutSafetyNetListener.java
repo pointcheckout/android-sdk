@@ -6,6 +6,6 @@ package com.pc.android.sdk;
 /**
  * @author pointcheckout
  */
-public interface PointCheckoutEventListener {
-    void onDismiss();
+public interface PointCheckoutSafetyNetListener {
+    void callback(boolean valid, String message);
 }
