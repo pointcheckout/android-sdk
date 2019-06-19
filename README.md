@@ -1,13 +1,8 @@
-<img src="https://www.pointcheckout.com/img/logo/logo.svg" width=100/>
-
 # PC Android SDK
 
 This is the Android SDK of PointCheckout. You can read more about PointCheckout at [pointcheckout.com](https://www.pointcheckout.com/).
 
 ## Quick start
-
-### Example app
-There is an example app at [TDODO: addurl]. You can import the example app to [Android Studio](https://developer.android.com/studio) to see how the SDK can be used.
 
 ### Getting started
 
