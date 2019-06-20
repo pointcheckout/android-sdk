@@ -50,6 +50,25 @@ public class PointCheckoutUtils {
             throw new PointCheckoutException(String.format("%s can not be null", obj.getClass().getSimpleName()));
     }
 
+    public static void evaluateSafetyNetAsync(Context context, final PointCheckoutSafetyNetListener listener) {
+
+        SafetyNet.getClient(context).attest(generateNonce(), API_KEY)
+                .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse attestationResponse) {
+                        listener.callback(evaluateJws(attestationResponse.getJwsResult()), msgNotSecure);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        listener.callback(false, msgNotSecure);
+                    }
+                });
+
+    }
+
     public static void evaluateSafetyNet(Context context, final PointCheckoutSafetyNetListener listener) {
 
         final ProgressDialog dialog = ProgressDialog.show(context, "",
@@ -60,14 +79,14 @@ public class PointCheckoutUtils {
                 .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
                     @Override
                     public void onSuccess(SafetyNetApi.AttestationResponse attestationResponse) {
-                        dialog.hide();
+                        dialog.dismiss();
                         listener.callback(evaluateJws(attestationResponse.getJwsResult()), msgNotSecure);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        dialog.hide();
+                        dialog.dismiss();
                         e.printStackTrace();
                     }
                 });

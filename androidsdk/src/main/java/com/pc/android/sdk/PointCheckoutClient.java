@@ -29,6 +29,10 @@ public class PointCheckoutClient {
      * The main modal that will show the payment page
      */
     private AlertDialog modal;
+    /**
+     * Indicates if whether the client is initialized or not
+     */
+    private boolean initialized;
 
     /**
      * @throws PointCheckoutException if the environment is null
@@ -57,6 +61,15 @@ public class PointCheckoutClient {
         this.autoDismiss = autoDismiss;
     }
 
+    public void initialize(Context context) {
+        PointCheckoutUtils.evaluateSafetyNetAsync(context, new PointCheckoutSafetyNetListener() {
+            @Override
+            public void callback(boolean valid, String message) {
+                initialized = valid;
+            }
+        });
+    }
+
     /**
      * @param checkoutKey of the payment
      * @return checkout url
@@ -79,11 +92,17 @@ public class PointCheckoutClient {
         PointCheckoutUtils.assertNotNull(context);
         PointCheckoutUtils.assertNotNull(checkoutKey);
 
+        if (initialized) {
+            payUnsafe(context, checkoutKey, listener);
+            return;
+        }
+
+
         PointCheckoutUtils.evaluateSafetyNet(context, new PointCheckoutSafetyNetListener() {
             @Override
             public void callback(boolean valid, String message) {
 
-                if(!valid){
+                if (!valid) {
                     new AlertDialog.Builder(context)
                             .setTitle("Error")
                             .setMessage(message)
@@ -92,7 +111,7 @@ public class PointCheckoutClient {
                             .show();
                     return;
                 }
-
+                initialized = valid;
                 payUnsafe(context, checkoutKey, listener);
 
             }
@@ -104,7 +123,7 @@ public class PointCheckoutClient {
      * @param checkoutKey of the payment
      * @param listener    to be called when the modal gets dismissed
      */
-    public void payUnsafe(
+    private void payUnsafe(
             final Context context,
             final String checkoutKey,
             final PointCheckoutEventListener listener) {
