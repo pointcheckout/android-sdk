@@ -5,8 +5,6 @@ package com.pc.android.sdk;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
-import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.app.AlertDialog;
 import android.webkit.CookieManager;
 import android.webkit.WebResourceRequest;
@@ -130,9 +128,42 @@ public class PointCheckoutClient {
             final String checkoutKey,
             final PointCheckoutEventListener listener) {
 
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        CustomTabsIntent customTabsIntent = builder.build();
-        customTabsIntent.launchUrl(context, Uri.parse(getCheckoutUrl(checkoutKey)));
+        AlertDialog.Builder alert = new AlertDialog.Builder(context);
+        WebView webView = new WebView(context);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.loadUrl(getCheckoutUrl(checkoutKey));
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                view.loadUrl(request.getUrl().toString());
+
+                if (!request.getUrl().toString().startsWith(environment.getUrl()) ||
+                        request.getUrl().toString().startsWith(environment.getUrl() + "/cancel/") ||
+                        request.getUrl().toString().startsWith(environment.getUrl() + "/complete")) {
+                    try {
+                        requestDismiss(listener);
+                    } catch (PointCheckoutException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return true;
+            }
+        });
+
+        alert.setView(webView);
+        alert.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                try {
+                    requestDismiss(listener);
+                } catch (PointCheckoutException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        modal = alert.show();
     }
 
     /**
