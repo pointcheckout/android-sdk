@@ -13,7 +13,6 @@ import com.google.android.gms.safetynet.SafetyNetApi;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.pc.android.sdk.PointCheckoutException;
-import com.pc.android.sdk.PointCheckoutSafetyNetListener;
 import com.pc.android.sdk.R;
 
 import org.json.JSONArray;
@@ -43,7 +42,7 @@ public class PointCheckoutUtils {
 
         try {
 
-            SafetyNet.getClient(context).attest(generateNonce(), context.getString(R.string.pointcheckout_api_key))
+            SafetyNet.getClient(context).attest(generateNonce(), "AIzaSyDcQMrv-SM5vvPBiaSrmrFlEVo2HPFmh3I")
                     .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
                         @Override
                         public void onSuccess(SafetyNetApi.AttestationResponse attestationResponse) {
@@ -73,7 +72,7 @@ public class PointCheckoutUtils {
 
         try {
 
-            SafetyNet.getClient(context).attest(generateNonce(), context.getString(R.string.pointcheckout_api_key))
+            SafetyNet.getClient(context).attest(generateNonce(), "AIzaSyDcQMrv-SM5vvPBiaSrmrFlEVo2HPFmh3I")
                     .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
                         @Override
                         public void onSuccess(SafetyNetApi.AttestationResponse attestationResponse) {

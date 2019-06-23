@@ -1,7 +1,7 @@
 /************************************************************************
  * Copyright PointCheckout, Ltd.
  */
-package com.pc.android.sdk;
+package com.pc.android.sdk.internal;
 
 /**
  * @author pointcheckout

@@ -13,7 +13,6 @@ import android.webkit.WebViewClient;
 import com.pc.android.sdk.Environment;
 import com.pc.android.sdk.PointCheckoutEventListener;
 import com.pc.android.sdk.PointCheckoutException;
-import com.pc.android.sdk.PointCheckoutSafetyNetListener;
 import com.pc.android.sdk.R;
 
 import java.util.Locale;
@@ -89,16 +88,11 @@ public class PointCheckoutInternalClient {
     }
 
     /**
-     * @param context     of the activity to showing the modal
      * @param checkoutKey of the payment
      * @return checkout url
      */
-    private String getCheckoutUrl(Context context, String checkoutKey) {
-        return String.format(getBaseUrl(context) + context.getString(R.string.pointcheckout_pay_url), checkoutKey);
-    }
-
-    private String getBaseUrl(Context context) {
-        return String.format("%s/%s", context.getString(environment.getStringIndex()), language);
+    private String getCheckoutUrl(String checkoutKey) {
+        return String.format(environment.getUrl() + "/pay-mobile?checkoutKey=%s", checkoutKey);
     }
 
     /**
@@ -155,15 +149,15 @@ public class PointCheckoutInternalClient {
         WebView webView = new WebView(context);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.loadUrl(getCheckoutUrl(context, checkoutKey));
+        webView.loadUrl(getCheckoutUrl(checkoutKey));
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String request) {
                 view.loadUrl(request);
 
-                if (!request.startsWith(getBaseUrl(context)) ||
-                        request.startsWith(getBaseUrl(context) + "/cancel/") ||
-                        request.startsWith(getBaseUrl(context) + "/complete")) {
+                if (!request.startsWith(environment.getUrl()) ||
+                        request.startsWith(environment.getUrl() + "/cancel/") ||
+                        request.startsWith(environment.getUrl() + "/complete")) {
                     try {
                         requestDismiss(listener);
                     } catch (PointCheckoutException e) {
@@ -199,7 +193,7 @@ public class PointCheckoutInternalClient {
             dismiss();
 
         if (listener != null)
-            listener.onDismiss();
+            listener.onPaymentUpdate();
 
 
     }

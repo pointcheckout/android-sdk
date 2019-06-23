@@ -1,11 +1,5 @@
 <resources>
     <string translatable="false" name="app_name">android sdk</string>
-    <string translatable="false" name="pointcheckout_api_key">AIzaSyDcQMrv-SM5vvPBiaSrmrFlEVo2HPFmh3I</string>
-
-    <string translatable="false" name="pointcheckout_base_url_production">https://pay.pointcheckout.com</string>
-    <string translatable="false" name="pointcheckout_base_url_test">https://pay.staging.pointcheckout.com</string>
-    <string translatable="false" name="pointcheckout_pay_url">/pay-mobile?checkoutKey=%s</string>
-
 
     <string name="pointcheckout_close">Close</string>
     <string name="pointcheckout_error">Error</string>

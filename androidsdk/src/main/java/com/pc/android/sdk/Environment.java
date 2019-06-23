@@ -14,23 +14,23 @@ public enum Environment {
     /**
      * Use for production
      */
-    PRODUCTION(R.string.pointcheckout_base_url_production),
+    PRODUCTION("https://pay.pointcheckout.com"),
     /**
      * Use for testing
      */
-    TEST(R.string.pointcheckout_base_url_test);
+    TEST("https://pay.test.pointcheckout.com");
 
-    private Environment(int stringIndex) {
-        this.stringIndex = stringIndex;
+    private Environment(String url) {
+        this.url = url;
     }
 
-    private int stringIndex;
+    private String url;
 
     /**
      * @return the string index of the environment
      */
-    public int getStringIndex(){
-        return stringIndex;
+    public String getUrl(){
+        return url;
     }
 
 }
