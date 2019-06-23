@@ -1,14 +1,14 @@
 <resources>
     <string translatable="false" name="app_name">android sdk</string>
-    <string translatable="false" name="api_key">AIzaSyDcQMrv-SM5vvPBiaSrmrFlEVo2HPFmh3I</string>
+    <string translatable="false" name="pointcheckout_api_key">AIzaSyDcQMrv-SM5vvPBiaSrmrFlEVo2HPFmh3I</string>
 
-    <string translatable="false" name="base_url_production">https://pay.pointcheckout.com</string>
-    <string translatable="false" name="base_url_test">https://pay.staging.pointcheckout.com</string>
-    <string translatable="false" name="pay_url">/pay-mobile?checkoutKey=%s</string>
+    <string translatable="false" name="pointcheckout_base_url_production">https://pay.pointcheckout.com</string>
+    <string translatable="false" name="pointcheckout_base_url_test">https://pay.staging.pointcheckout.com</string>
+    <string translatable="false" name="pointcheckout_pay_url">/pay-mobile?checkoutKey=%s</string>
 
 
-    <string name="close">Close</string>
-    <string name="error">Error</string>
-    <string name="checking_device">Checking your device. Please wait...</string>
-    <string name="not_secure">PointCheckout payment can not run on this device due to security reasons.</string>
+    <string name="pointcheckout_close">Close</string>
+    <string name="pointcheckout_error">Error</string>
+    <string name="pointcheckout_checking_device">Checking your device. Please wait...</string>
+    <string name="pointcheckout_not_secure">PointCheckout payment can not run on this device due to security reasons.</string>
 </resources>

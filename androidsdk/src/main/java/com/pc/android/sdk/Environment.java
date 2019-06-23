@@ -14,11 +14,11 @@ public enum Environment {
     /**
      * Use for production
      */
-    PRODUCTION(R.string.base_url_production),
+    PRODUCTION(R.string.pointcheckout_base_url_production),
     /**
      * Use for testing
      */
-    TEST(R.string.base_url_test);
+    TEST(R.string.pointcheckout_base_url_test);
 
     private Environment(int stringIndex) {
         this.stringIndex = stringIndex;

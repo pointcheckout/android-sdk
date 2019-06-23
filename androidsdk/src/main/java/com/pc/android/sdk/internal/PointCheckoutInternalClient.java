@@ -16,7 +16,6 @@ import com.pc.android.sdk.PointCheckoutException;
 import com.pc.android.sdk.PointCheckoutSafetyNetListener;
 import com.pc.android.sdk.R;
 
-import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -40,17 +39,9 @@ public class PointCheckoutInternalClient {
      */
     private boolean initialized;
     /**
-     * Default language iso2
-     */
-    private static final String default_language = "en";
-    /**
      * Device language iso2
      */
     private String language;
-    /**
-     * Supported languages iso2 codes
-     */
-    private String[] supportedLanguages = {"en", "ar"};
 
     /**
      * @throws PointCheckoutException if the environment is null
@@ -78,11 +69,7 @@ public class PointCheckoutInternalClient {
         this.environment = environment;
         this.autoDismiss = autoDismiss;
 
-        try {
-            setLanguage(Locale.getDefault().getLanguage());
-        } catch (PointCheckoutException e) {
-            language = default_language;
-        }
+        setLanguage(Locale.getDefault().getLanguage());
     }
 
     public void initialize(Context context) {
@@ -97,10 +84,7 @@ public class PointCheckoutInternalClient {
     /**
      * @param iso2 code of the language
      */
-    public void setLanguage(String iso2) throws PointCheckoutException {
-        if (!Arrays.asList(supportedLanguages).contains(iso2))
-            throw new PointCheckoutException(String.format("language %s is not supported", iso2));
-
+    public void setLanguage(String iso2) {
         language = iso2;
     }
 
@@ -110,7 +94,11 @@ public class PointCheckoutInternalClient {
      * @return checkout url
      */
     private String getCheckoutUrl(Context context, String checkoutKey) {
-        return String.format(context.getString(environment.getStringIndex()) + context.getString(R.string.pay_url), checkoutKey);
+        return String.format(getBaseUrl(context) + context.getString(R.string.pointcheckout_pay_url), checkoutKey);
+    }
+
+    private String getBaseUrl(Context context) {
+        return String.format("%s/%s", context.getString(environment.getStringIndex()), language);
     }
 
     /**
@@ -139,7 +127,7 @@ public class PointCheckoutInternalClient {
 
                 if (!valid) {
                     new AlertDialog.Builder(context)
-                            .setTitle(R.string.error)
+                            .setTitle(R.string.pointcheckout_error)
                             .setMessage(message)
                             .setNegativeButton(android.R.string.no, null)
                             .setIcon(android.R.drawable.ic_dialog_alert)
@@ -173,9 +161,9 @@ public class PointCheckoutInternalClient {
             public boolean shouldOverrideUrlLoading(WebView view, String request) {
                 view.loadUrl(request);
 
-                if (!request.startsWith(context.getString(environment.getStringIndex())) ||
-                        request.startsWith(context.getString(environment.getStringIndex()) + "/cancel/") ||
-                        request.startsWith(context.getString(environment.getStringIndex()) + "/complete")) {
+                if (!request.startsWith(getBaseUrl(context)) ||
+                        request.startsWith(getBaseUrl(context) + "/cancel/") ||
+                        request.startsWith(getBaseUrl(context) + "/complete")) {
                     try {
                         requestDismiss(listener);
                     } catch (PointCheckoutException e) {
@@ -188,7 +176,7 @@ public class PointCheckoutInternalClient {
         });
 
         alert.setView(webView);
-        alert.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
+        alert.setNegativeButton(R.string.pointcheckout_close, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 try {
