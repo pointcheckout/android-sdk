@@ -7,11 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.webkit.CookieManager;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * @author pointcheckout
@@ -33,6 +33,18 @@ public class PointCheckoutClient {
      * Indicates if whether the client is initialized or not
      */
     private boolean initialized;
+    /**
+     * Default language iso2
+     */
+    private static final String default_language = "en";
+    /**
+     * Device language iso2
+     */
+    private String language;
+    /**
+     * Supported languages iso2 codes
+     */
+    private String[] supportedLanguages = {"en", "ar"};
 
     /**
      * @throws PointCheckoutException if the environment is null
@@ -59,6 +71,12 @@ public class PointCheckoutClient {
         PointCheckoutUtils.assertNotNull(environment);
         this.environment = environment;
         this.autoDismiss = autoDismiss;
+
+        try {
+            setLanguage(Locale.getDefault().getLanguage());
+        } catch (PointCheckoutException e) {
+            language = default_language;
+        }
     }
 
     public void initialize(Context context) {
@@ -68,6 +86,16 @@ public class PointCheckoutClient {
                 initialized = valid;
             }
         });
+    }
+
+    /**
+     * @param iso2 code of the language
+     */
+    public void setLanguage(String iso2) throws PointCheckoutException {
+        if (!Arrays.asList(supportedLanguages).contains(iso2))
+            throw new PointCheckoutException(String.format("language %s is not supported", iso2));
+
+        language = iso2;
     }
 
     /**
@@ -135,12 +163,12 @@ public class PointCheckoutClient {
         webView.loadUrl(getCheckoutUrl(checkoutKey));
         webView.setWebViewClient(new WebViewClient() {
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                view.loadUrl(request.getUrl().toString());
+            public boolean shouldOverrideUrlLoading(WebView view, String request) {
+                view.loadUrl(request);
 
-                if (!request.getUrl().toString().startsWith(environment.getUrl()) ||
-                        request.getUrl().toString().startsWith(environment.getUrl() + "/cancel/") ||
-                        request.getUrl().toString().startsWith(environment.getUrl() + "/complete")) {
+                if (!request.startsWith(environment.getUrl()) ||
+                        request.startsWith(environment.getUrl() + "/cancel/") ||
+                        request.startsWith(environment.getUrl() + "/complete")) {
                     try {
                         requestDismiss(listener);
                     } catch (PointCheckoutException e) {
@@ -175,7 +203,7 @@ public class PointCheckoutClient {
         if (autoDismiss)
             dismiss();
 
-        if (Objects.nonNull(listener))
+        if (listener != null)
             listener.onDismiss();
 
 
@@ -191,7 +219,7 @@ public class PointCheckoutClient {
         if (!modal.isShowing())
             throw new PointCheckoutException("Already dismissed");
 
-        CookieManager.getInstance().removeAllCookies(null);
+        CookieManager.getInstance().removeAllCookie();
         modal.dismiss();
     }
 }

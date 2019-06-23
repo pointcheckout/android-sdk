@@ -5,19 +5,11 @@ package com.pc.android.sdk;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.res.Resources;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Base64;
-import android.util.JsonReader;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.safetynet.SafetyNet;
 import com.google.android.gms.safetynet.SafetyNetApi;
-import com.google.android.gms.safetynet.SafetyNetClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -25,16 +17,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author pointcheckout
@@ -46,7 +34,7 @@ public class PointCheckoutUtils {
 
 
     public static void assertNotNull(Object obj) throws PointCheckoutException {
-        if (Objects.isNull(obj))
+        if (obj != null)
             throw new PointCheckoutException(String.format("%s can not be null", obj.getClass().getSimpleName()));
     }
 
@@ -129,7 +117,7 @@ public class PointCheckoutUtils {
     private static Map<String, Object> jsonToMap(String json) throws JSONException {
         Map<String, Object> retMap = new HashMap<>();
 
-        if (Objects.nonNull(json)) {
+        if (json != null) {
             retMap = toMap(new JSONObject(json));
         }
 
