@@ -3,8 +3,10 @@
  */
 package com.pc.android.sdk;
 
+import com.pc.android.sdk.internal.PointCheckoutInternalClient;
+
 /**
- * The environment of {@link PointCheckoutClient}
+ * The environment of {@link PointCheckoutInternalClient}
  *
  * @author pointcheckout
  */
@@ -12,23 +14,23 @@ public enum Environment {
     /**
      * Use for production
      */
-    PRODUCTION("https://pay.pointcheckout.com"),
+    PRODUCTION(R.string.base_url_production),
     /**
      * Use for testing
      */
-    TEST("https://pay.staging.pointcheckout.com");
+    TEST(R.string.base_url_test);
 
-    private Environment(String url) {
-        this.url = url;
+    private Environment(int stringIndex) {
+        this.stringIndex = stringIndex;
     }
 
-    private String url;
+    private int stringIndex;
 
     /**
-     * @return the url of the environment
+     * @return the string index of the environment
      */
-    public String getUrl(){
-        return url;
+    public int getStringIndex(){
+        return stringIndex;
     }
 
 }
