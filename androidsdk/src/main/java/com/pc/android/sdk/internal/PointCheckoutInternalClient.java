@@ -156,10 +156,17 @@ public class PointCheckoutInternalClient {
                 view.loadUrl(request);
 
                 if (!request.startsWith(environment.getUrl()) ||
-                        request.startsWith(environment.getUrl() + "/cancel/") ||
                         request.startsWith(environment.getUrl() + "/complete")) {
                     try {
                         requestDismiss(listener);
+                    } catch (PointCheckoutException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (request.startsWith(environment.getUrl() + "/cancel/")) {
+                    try {
+                        requestCancel(listener);
                     } catch (PointCheckoutException e) {
                         e.printStackTrace();
                     }
@@ -174,7 +181,7 @@ public class PointCheckoutInternalClient {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 try {
-                    requestDismiss(listener);
+                    requestCancel(listener);
                 } catch (PointCheckoutException e) {
                     e.printStackTrace();
                 }
@@ -194,6 +201,16 @@ public class PointCheckoutInternalClient {
 
         if (listener != null)
             listener.onPaymentUpdate();
+
+
+    }
+
+    private void requestCancel(PointCheckoutEventListener listener) throws PointCheckoutException {
+        if (autoDismiss)
+            dismiss();
+
+        if (listener != null)
+            listener.onPaymentCancel();
 
 
     }
