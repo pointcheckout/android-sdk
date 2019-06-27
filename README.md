@@ -4,27 +4,35 @@ This is the Android SDK of PointCheckout. You can read more about PointCheckout 
 
 ## Quick start
 
+### Example app
+There is an example app at [TDODO: addurl]. You can import the example app to [Android Studio](https://developer.android.com/studio) to see how the SDK can be used.
+
 ### Getting started
 
-These are the minimum required steps to use the PointCheckout SDK in your Android app. We assume that you are using Android Studio for your Android development. The minimum supported Android API level for the SDK is 28 (Pie).
+These are the minimum required steps to use the PointCheckout SDK in your Android app. We assume that you are using Android Studio for your Android development. The minimum supported Android API level for the SDK is 16 (KitKat), however, setting the minimum Android API level to 26 (Pie) is recommended.
+
+ > The SDK uses Google's [SafetyNet API](https://developer.android.com/training/safetynet/attestation) for security, setting minimum Android API to lower than 26 will prevent it from functioning.
 
 #### Add the SDK to your project
 
-Add the following to your `build.gradle` file:
-
-```
-
-allprojects {
-    repositories {
-        ...
-        maven { url 'https://jitpack.io' }
-
+ - Download the `.aar` (Android Archive Library) file from here [TODO: addUrl]
+ - Create `libs` directory and add the downloaded file to it.
+ - Add the following to `build.gradle`
+ 
+ ```
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
     }
 }
+ ```
+ - Add the dependency to `app/build.gradle` 
 
+```
 dependencies {
     ...
-    implementation 'com.github.AbdullahAsendar:pc-android-sdk:0.01'
+    implementation(name:'pc-android-sdk', ext:'aar')
 }
 ```
 
@@ -35,6 +43,10 @@ The PointCheckout SDK requires the following permissions. Please add them to you
 ```
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
+
+#### Adding SafetyNet
+
+Add Google's SafetyNet API to your `app/build.gradle`, follow [this guid](https://developers.google.com/android/guides/setup). 
 
 After these steps, rebuild your app and you are good to go!
 
@@ -88,9 +100,8 @@ PointCheckoutClient pcClient = new PointCheckoutClient(Environment.TEST, true);
 ```
 </td>
 </tr>
-
-
 <table>
+    
 <tr>
 <td>
 <b>Parameter</b>
@@ -129,6 +140,18 @@ Regardless of autoDismiss value, the onDismiss method of PointCheckoutEventListe
 
 </table>
 
+> Create a single instance of `PointCheckoutClient` and re-use that instance each time you want to checkout.
+
+### Initialize
+
+Initialize `PointCheckoutClient` using:
+
+```java
+PointCheckoutClient pcClient = new PointCheckoutClient();
+pcClient.initialize(context);
+```
+> Invoke `initialize` when the app starts because it needs 2-3 seconds. If the client is not initialized and checkout is performed, the client will call `initialize` internally before checking out.
+
 ### Payment submit
 
 To submit a payment call the `pay` method of the `PointCheckoutClient`:
@@ -136,7 +159,11 @@ To submit a payment call the `pay` method of the `PointCheckoutClient`:
 ```java
 pcClient.pay(context, checkoutKey, new PointCheckoutEventListener() {
   @Override
-  public void onDismiss() {
+  public void onPaymentCancel() {
+    // payment was cancelled
+  }
+  @Override
+  public void onPaymentUpdate() {
     // check the status of the payment and act accordingly
   }
 });
