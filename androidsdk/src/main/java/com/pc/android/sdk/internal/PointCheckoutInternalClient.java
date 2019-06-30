@@ -92,7 +92,11 @@ public class PointCheckoutInternalClient {
      * @return checkout url
      */
     private String getCheckoutUrl(String checkoutKey) {
-        return String.format(environment.getUrl() + "/pay-mobile?checkoutKey=%s", checkoutKey);
+        return String.format(getBaseUrl() + "/pay-mobile?checkoutKey=%s", checkoutKey);
+    }
+
+    private String getBaseUrl(){
+        return String.format("%s/%s", environment.getUrl(), language);
     }
 
     /**
@@ -156,7 +160,7 @@ public class PointCheckoutInternalClient {
                 view.loadUrl(request);
 
                 if (!request.startsWith(environment.getUrl()) ||
-                        request.startsWith(environment.getUrl() + "/complete")) {
+                        request.startsWith(getBaseUrl() + "/complete")) {
                     try {
                         requestDismiss(listener);
                     } catch (PointCheckoutException e) {
@@ -164,7 +168,7 @@ public class PointCheckoutInternalClient {
                     }
                 }
 
-                if (request.startsWith(environment.getUrl() + "/cancel/")) {
+                if (request.startsWith(getBaseUrl() + "/cancel/")) {
                     try {
                         requestCancel(listener);
                     } catch (PointCheckoutException e) {
