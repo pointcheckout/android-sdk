@@ -96,7 +96,7 @@ public class PointCheckoutInternalClient {
     }
 
     private String getBaseUrl(){
-        return String.format("%s/%s", environment.getUrl(), language);
+        return String.format("%s/embedded/%s", environment.getUrl(), language);
     }
 
     /**
