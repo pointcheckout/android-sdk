@@ -6,9 +6,13 @@ package com.pc.android.sdk.internal;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
+import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.pc.android.sdk.Environment;
 import com.pc.android.sdk.PointCheckoutEventListener;
@@ -180,7 +184,6 @@ public class PointCheckoutInternalClient {
             }
         });
 
-        alert.setView(webView);
         alert.setNegativeButton(R.string.pointcheckout_close, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
@@ -191,7 +194,21 @@ public class PointCheckoutInternalClient {
                 }
             }
         });
+
+
+        LinearLayout wrapper = new LinearLayout(context);
+        EditText keyboardHack = new EditText(context);
+
+        keyboardHack.setVisibility(View.GONE);
+
+        wrapper.setOrientation(LinearLayout.VERTICAL);
+        wrapper.addView(webView, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        wrapper.addView(keyboardHack, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        alert.setView(wrapper);
+
         modal = alert.show();
+
     }
 
     /**
