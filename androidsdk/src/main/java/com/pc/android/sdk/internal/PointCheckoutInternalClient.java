@@ -26,10 +26,6 @@ import java.util.Locale;
  */
 public class PointCheckoutInternalClient {
     /**
-     * Specifies whether the environment is test or production
-     */
-    private Environment environment;
-    /**
      * Auto closes the modal on payment success or failure
      */
     private boolean autoDismiss;
@@ -41,38 +37,13 @@ public class PointCheckoutInternalClient {
      * Indicates if whether the client is initialized or not
      */
     private boolean initialized;
-    /**
-     * Device language iso2
-     */
-    private String language;
-
-    /**
-     * @throws PointCheckoutException if the environment is null
-     */
-    public PointCheckoutInternalClient() throws PointCheckoutException {
-        this(Environment.PRODUCTION, true);
-
-    }
 
     /**
      * @param autoDismiss auto close the modal on payment success or failure
      * @throws PointCheckoutException if the environment is null
      */
     public PointCheckoutInternalClient(boolean autoDismiss) throws PointCheckoutException {
-        this(Environment.PRODUCTION, autoDismiss);
-    }
-
-    /**
-     * @param environment specifies whether the environment is test or production
-     * @param autoDismiss auto close the modal on payment success or failure
-     * @throws PointCheckoutException if the environment is null
-     */
-    public PointCheckoutInternalClient(Environment environment, boolean autoDismiss) throws PointCheckoutException {
-        PointCheckoutUtils.assertNotNull(environment);
-        this.environment = environment;
         this.autoDismiss = autoDismiss;
-
-        setLanguage(Locale.getDefault().getLanguage());
     }
 
     public void initialize(Context context) {
@@ -85,40 +56,22 @@ public class PointCheckoutInternalClient {
     }
 
     /**
-     * @param iso2 code of the language
-     */
-    public void setLanguage(String iso2) {
-        language = iso2;
-    }
-
-    /**
-     * @param checkoutKey of the payment
-     * @return checkout url
-     */
-    private String getCheckoutUrl(String checkoutKey) {
-        return String.format(getBaseUrl() + "/pay-mobile?checkoutKey=%s", checkoutKey);
-    }
-
-    private String getBaseUrl(){
-        return String.format("%s/embedded/%s", environment.getUrl(), language);
-    }
-
-    /**
-     * @param context     of the activity to showing the modal
-     * @param checkoutKey of the payment
-     * @param listener    to be called when the modal gets dismissed
+     * @param context    of the activity to showing the modal
+     * @param redirectUrl
+     * @param listener   to be called when the modal gets dismissed
      * @throws PointCheckoutException if the context or checkoutKey is null
      */
     public void pay(
             final Context context,
-            final String checkoutKey,
+            final String redirectUrl,
+            final String resultUrl,
             final PointCheckoutEventListener listener) throws PointCheckoutException {
 
         PointCheckoutUtils.assertNotNull(context);
-        PointCheckoutUtils.assertNotNull(checkoutKey);
+        PointCheckoutUtils.assertNotNull(redirectUrl);
 
         if (initialized) {
-            payUnsafe(context, checkoutKey, listener);
+            payUnsafe(context, redirectUrl, resultUrl, listener);
             return;
         }
 
@@ -137,34 +90,32 @@ public class PointCheckoutInternalClient {
                     return;
                 }
                 initialized = valid;
-                payUnsafe(context, checkoutKey, listener);
+                payUnsafe(context, redirectUrl, resultUrl, listener);
 
             }
         });
     }
 
-    /**
-     * @param context     of the activity to showing the modal
-     * @param checkoutKey of the payment
-     * @param listener    to be called when the modal gets dismissed
-     */
+
     private void payUnsafe(
             final Context context,
-            final String checkoutKey,
+            final String redirectUrl,
+            final String resultUrl,
             final PointCheckoutEventListener listener) {
 
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
         WebView webView = new WebView(context);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.loadUrl(getCheckoutUrl(checkoutKey));
+        webView.loadUrl(redirectUrl);
+        webView.setFocusableInTouchMode(true);
+        webView.setFocusable(true);
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String request) {
                 view.loadUrl(request);
 
-                if (!request.startsWith(environment.getUrl()) ||
-                        request.startsWith(getBaseUrl() + "/complete")) {
+                if (paymentCompleted(request, redirectUrl, resultUrl)) {
                     try {
                         requestDismiss(listener);
                     } catch (PointCheckoutException e) {
@@ -172,7 +123,7 @@ public class PointCheckoutInternalClient {
                     }
                 }
 
-                if (request.startsWith(getBaseUrl() + "/cancel/")) {
+                if (paymentCancelled(request, redirectUrl)) {
                     try {
                         requestCancel(listener);
                     } catch (PointCheckoutException e) {
@@ -248,5 +199,24 @@ public class PointCheckoutInternalClient {
 
         CookieManager.getInstance().removeAllCookie();
         modal.dismiss();
+    }
+
+    private boolean paymentCompleted(String url, String redirectUrl, String resultUrl) {
+        String COMPLETE = "/complete/";
+        String SUCCESS = "/success-redirect/";
+        Environment environment = Environment.getEnviornment(redirectUrl);
+        String baseUrl = environment.getUrl();
+
+        return url.startsWith(baseUrl + COMPLETE) ||
+                url.startsWith(baseUrl + SUCCESS) ||
+                (resultUrl != null && url.startsWith(resultUrl));
+    }
+
+    private boolean paymentCancelled(String url, String redirectUrl) {
+        String CANCEL = "/cancel/";
+        Environment environment = Environment.getEnviornment(redirectUrl);
+        String baseUrl = environment.getUrl();
+
+        return url.startsWith(baseUrl + CANCEL);
     }
 }
