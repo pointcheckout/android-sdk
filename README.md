@@ -7,7 +7,7 @@ These are the minimum required steps to use the PointCheckout SDK in your Androi
 ### Getting started
 
 Add the SDK to your project:
- - Download the .aar (Android Archive Library) file from here 
+ - Download the .aar (Android Archive Library) file from [here](https://s3-eu-west-1.amazonaws.com/pointcheckout.com/mobile-sdk/latest/pointcheckout-android-sdk.aar) 
 - Create libs directory and add the downloaded file to it.
 - Add the following to build.gradle
 
