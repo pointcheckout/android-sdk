@@ -24,7 +24,7 @@ Add the SDK to your project:
 
 ```gradle
   dependencies {
-          implementation 'com.github.pointcheckout:merchant-android-sdk:v1.0.0'
+          implementation 'com.github.pointcheckout:android-sdk:v1.0.0'
   }
 ```
 
