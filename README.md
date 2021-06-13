@@ -40,14 +40,15 @@ Add Google's SafetyNet API to your `app/build.gradle`, follow [this guide](https
 After these steps, rebuild your app and you are good to go!
 
 ### Using the SDK
+
+The bellow diagram shows how the payment process works:
+![][img_sequence]
+
+[img_sequence]: https://static.staging.pointcheckout.com/17a04be6556a64cc/original
+
 #### Checkout request
 
-Send new checkout request to [PointCheckout's API](https://www.pointcheckout.com/en/developers/api/api-integration) using endpoint `/mer/v1.2/checkouts` (check the [documentation](https://www.pointcheckout.com/en/developers/api/api-integration) for more details). The SDK needs two variables:
-
-| Variable    | Mandatory | Description                                                                                                                                                   |
-|-------------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| redirectUrl | Yes       | Will be returned in the response body of the checkout request. This is the URL to the payment page of PointCheckout. The SDK accepts only PointCheckout URLs. |
-| resultUrl   | No        | This is where you normally redirect the user on payment success or failure, for instance to mark the order as paid on payment success.                        |
+Send new checkout request to [PointCheckout's API](https://www.pointcheckout.com/en/developers/api/api-integration) using endpoint `/mer/v1.2/checkouts` (check the [documentation](https://www.pointcheckout.com/en/developers/api/api-integration) for more details). 
 
 #### Create PointCheckoutClient
 Create an object of PointCheckoutClient:
@@ -83,14 +84,23 @@ pcClient.pay(context, redirectUrl, resultUrl, new PointCheckoutEventListener() {
         });
 ```
 
-| Parameter   | Description                                                      |
-|-------------|------------------------------------------------------------------|
-| context     | Current activity context                                         |
-| redirectUrl | URL of the payment page, can be obtained from the API            |
-| resultUrl   | URL that PointCheckout will call upon payment success or failure |
-| listener    | Listener that will be called on payment update or cancellation   |
+| Parameter   | Description                                                         |
+|-------------|---------------------------------------------------------------------|
+| context     | Current activity context                                            |
+| redirectUrl | This URL is included in the checkout response from PointCheckout API|
+| resultUrl   | The same URL passed to PointCheckout API when creating the checkout |
+| listener    | Listener that will be called on payment update or cancellation      |
 
 Calling the `pay` function will open a modal and the user will be able to login and complete the payment.
+
+#### PointCheckoutEventListener
+
+The event listener has two callbacks, `onPaymentCancel` and `onPaymentUpdate`.
+
+`onPaymentCancel` will only be called if the user closes the modal by clicking on close button.
+
+`onPaymentUpdate` will be called whenever the checkout status is updated (paid, cancelled, failed .etc). When this callback is invoked you should call PointCheckout API to fetch the new status of the checkout.
+
 
 ### Demo app
 You can use our Demo app as an example of how to integrate our SDK on your application. you can access it from [here](https://github.com/pointcheckout/android-sdk-demo). You can import the example app to Android Studio to see how the SDK can be used.
