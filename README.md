@@ -54,6 +54,7 @@ Create an object of PointCheckoutClient:
 PointCheckoutClient pcClient = new PointCheckoutClient(environment);
 ```
 > environment: specifies the environment of the app, use Environment.TEST for testing purposes.
+
 > Keep a reference of the created client to reuse the same instance
 
 #### Initialize
