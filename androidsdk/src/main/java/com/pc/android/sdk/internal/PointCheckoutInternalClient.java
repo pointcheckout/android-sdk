@@ -6,7 +6,6 @@ package com.pc.android.sdk.internal;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
-import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
@@ -19,16 +18,10 @@ import com.pc.android.sdk.PointCheckoutEventListener;
 import com.pc.android.sdk.PointCheckoutException;
 import com.pc.android.sdk.R;
 
-import java.util.Locale;
-
 /**
  * @author pointcheckout
  */
 public class PointCheckoutInternalClient {
-    /**
-     * Auto closes the modal on payment success or failure
-     */
-    private boolean autoDismiss;
     /**
      * The main modal that will show the payment page
      */
@@ -37,13 +30,17 @@ public class PointCheckoutInternalClient {
      * Indicates if whether the client is initialized or not
      */
     private boolean initialized;
+    /**
+     *
+     */
+    private Environment environment;
 
     /**
-     * @param autoDismiss auto close the modal on payment success or failure
      * @throws PointCheckoutException if the environment is null
      */
-    public PointCheckoutInternalClient(boolean autoDismiss) throws PointCheckoutException {
-        this.autoDismiss = autoDismiss;
+    public PointCheckoutInternalClient(Environment environment) throws PointCheckoutException {
+        PointCheckoutUtils.assertNotNull(environment);
+        this.environment = environment;
     }
 
     public void initialize(Context context) {
@@ -56,22 +53,20 @@ public class PointCheckoutInternalClient {
     }
 
     /**
-     * @param context    of the activity to showing the modal
-     * @param redirectUrl
-     * @param listener   to be called when the modal gets dismissed
+     * @param context  of the activity to showing the modal
+     * @param listener to be called when the modal gets dismissed
      * @throws PointCheckoutException if the context or checkoutKey is null
      */
     public void pay(
             final Context context,
-            final String redirectUrl,
-            final String resultUrl,
+            final String checkoutKey,
             final PointCheckoutEventListener listener) throws PointCheckoutException {
 
         PointCheckoutUtils.assertNotNull(context);
-        PointCheckoutUtils.assertNotNull(redirectUrl);
+        PointCheckoutUtils.assertNotNull(checkoutKey);
 
         if (initialized) {
-            payUnsafe(context, redirectUrl, resultUrl, listener);
+            payUnsafe(context, checkoutKey, listener);
             return;
         }
 
@@ -90,7 +85,7 @@ public class PointCheckoutInternalClient {
                     return;
                 }
                 initialized = valid;
-                payUnsafe(context, redirectUrl, resultUrl, listener);
+                payUnsafe(context, checkoutKey, listener);
 
             }
         });
@@ -99,15 +94,14 @@ public class PointCheckoutInternalClient {
 
     private void payUnsafe(
             final Context context,
-            final String redirectUrl,
-            final String resultUrl,
+            final String checkoutKey,
             final PointCheckoutEventListener listener) {
 
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
         WebView webView = new WebView(context);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.loadUrl(redirectUrl);
+        webView.loadUrl(getPaymentUrl(checkoutKey));
         webView.setFocusableInTouchMode(true);
         webView.setFocusable(true);
         webView.setWebViewClient(new WebViewClient() {
@@ -115,21 +109,16 @@ public class PointCheckoutInternalClient {
             public boolean shouldOverrideUrlLoading(WebView view, String request) {
                 view.loadUrl(request);
 
-                if (paymentCompleted(request, redirectUrl, resultUrl)) {
+                if (isDone(request)) {
                     try {
-                        requestDismiss(listener);
+                        dismiss();
+                        if (listener != null)
+                            listener.onUpdate();
                     } catch (PointCheckoutException e) {
                         e.printStackTrace();
                     }
                 }
 
-                if (paymentCancelled(request, redirectUrl)) {
-                    try {
-                        requestCancel(listener);
-                    } catch (PointCheckoutException e) {
-                        e.printStackTrace();
-                    }
-                }
 
                 return true;
             }
@@ -139,7 +128,9 @@ public class PointCheckoutInternalClient {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 try {
-                    requestCancel(listener);
+                    dismiss();
+                    if (listener != null)
+                        listener.onDismiss();
                 } catch (PointCheckoutException e) {
                     e.printStackTrace();
                 }
@@ -163,31 +154,6 @@ public class PointCheckoutInternalClient {
     }
 
     /**
-     * Dismiss the modal if autoDismiss is true
-     *
-     * @param listener to be called whether the modal is dismissed or not
-     */
-    private void requestDismiss(PointCheckoutEventListener listener) throws PointCheckoutException {
-        if (autoDismiss)
-            dismiss();
-
-        if (listener != null)
-            listener.onPaymentUpdate();
-
-
-    }
-
-    private void requestCancel(PointCheckoutEventListener listener) throws PointCheckoutException {
-        if (autoDismiss)
-            dismiss();
-
-        if (listener != null)
-            listener.onPaymentCancel();
-
-
-    }
-
-    /**
      * Dismisses the modal
      *
      * @throws PointCheckoutException if the modal is already dismissed
@@ -201,22 +167,18 @@ public class PointCheckoutInternalClient {
         modal.dismiss();
     }
 
-    private boolean paymentCompleted(String url, String redirectUrl, String resultUrl) {
-        String COMPLETE = "/complete/";
-        String SUCCESS = "/success-redirect/";
-        Environment environment = Environment.getEnviornment(redirectUrl);
-        String baseUrl = environment.getUrl();
+    private boolean isDone(String url) {
+        String COMPLETE = "/complete";
+        String SUCCESS = "/success-redirect";
+        String CONFIRMATION = "/payment-confirmation";
 
-        return url.startsWith(baseUrl + COMPLETE) ||
-                url.startsWith(baseUrl + SUCCESS) ||
-                (resultUrl != null && url.startsWith(resultUrl));
+        return url.startsWith(environment.getUrl() + COMPLETE) ||
+                url.startsWith(environment.getUrl() + SUCCESS) ||
+                url.startsWith(environment.getUrl() + CONFIRMATION);
+
     }
 
-    private boolean paymentCancelled(String url, String redirectUrl) {
-        String CANCEL = "/cancel/";
-        Environment environment = Environment.getEnviornment(redirectUrl);
-        String baseUrl = environment.getUrl();
-
-        return url.startsWith(baseUrl + CANCEL);
+    private String getPaymentUrl(String checkoutKey) {
+        return this.environment.getUrl() + "/checkout/" + checkoutKey;
     }
 }

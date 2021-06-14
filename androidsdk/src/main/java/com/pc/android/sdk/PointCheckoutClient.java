@@ -15,17 +15,9 @@ public class PointCheckoutClient {
     /**
      * @throws PointCheckoutException if the environment is null
      */
-    public PointCheckoutClient() throws PointCheckoutException {
-        client = new PointCheckoutInternalClient(true);
+    public PointCheckoutClient(Environment environment) throws PointCheckoutException {
+        client = new PointCheckoutInternalClient(environment);
 
-    }
-
-    /**
-     * @param autoDismiss auto close the modal on payment success or failure
-     * @throws PointCheckoutException if the environment is null
-     */
-    public PointCheckoutClient(boolean autoDismiss) throws PointCheckoutException {
-        client = new PointCheckoutInternalClient(autoDismiss);
     }
 
     public void initialize(Context context) {
@@ -34,20 +26,11 @@ public class PointCheckoutClient {
 
     public void pay(
             final Context context,
-            final String redirectUrl,
+            final String checkoutKey,
             final PointCheckoutEventListener listener) throws PointCheckoutException {
-        validate(redirectUrl);
-        client.pay(context, redirectUrl, null, listener);
+        client.pay(context, checkoutKey, listener);
     }
 
-    public void pay(
-            final Context context,
-            final String redirectUrl,
-            final String resultUrl,
-            final PointCheckoutEventListener listener) throws PointCheckoutException {
-        validate(redirectUrl);
-        client.pay(context, redirectUrl, resultUrl, listener);
-    }
 
     /**
      * Dismisses the modal
@@ -58,10 +41,5 @@ public class PointCheckoutClient {
         client.dismiss();
     }
 
-    private void validate(String redirectUrl) throws PointCheckoutException {
-        if (Environment.getEnviornment(redirectUrl) == null)
-            throw new PointCheckoutException("THe provided payment url is invalid");
-
-    }
 }
 
