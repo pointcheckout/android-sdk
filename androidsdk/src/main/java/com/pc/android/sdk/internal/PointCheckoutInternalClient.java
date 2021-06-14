@@ -179,6 +179,6 @@ public class PointCheckoutInternalClient {
     }
 
     private String getPaymentUrl(String checkoutKey) {
-        return this.environment.getUrl() + "/checkout/" + checkoutKey;
+        return this.environment.getUrl() + "/embedded/checkout/" + checkoutKey;
     }
 }
