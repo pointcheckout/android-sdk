@@ -102,4 +102,4 @@ Calling the `pay` function will open a modal and the user will be able to login 
 
 
 ### Demo app
-You can use our Demo app as an example of how to integrate our SDK on your application. you can access it from [here](https://github.com/pointcheckout/sdk-demo). You can import the example app to Android Studio to see how the SDK can be used.
+You can use our Demo app as an example of how to integrate our SDK on your application. you can access it from [here](https://github.com/pointcheckout/android-sdk-demo). You can import the example app to Android Studio to see how the SDK can be used.
