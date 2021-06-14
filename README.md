@@ -14,9 +14,6 @@ Add the SDK to your project:
         repositories {
             ...
             maven { url 'https://jitpack.io' }
-            flatDir {
-                dirs 'libs'
-            }
         }
     }
 ```
@@ -24,7 +21,7 @@ Add the SDK to your project:
 
 ```gradle
   dependencies {
-          implementation 'com.github.pointcheckout:android-sdk:v1.0.0'
+          implementation 'com.github.pointcheckout:android-sdk:v1.3'
   }
 ```
 
@@ -44,18 +41,19 @@ After these steps, rebuild your app and you are good to go!
 The bellow diagram shows how the payment process works:
 ![][img_sequence]
 
-[img_sequence]: https://static.staging.pointcheckout.com/17a04be6556a64cc/original
+[img_sequence]: https://static.staging.pointcheckout.com/17a0c59098aa6528/original
 
 #### Checkout request
 
-Send new checkout request to [PointCheckout's API](https://www.pointcheckout.com/en/developers/api/api-integration) using endpoint `/mer/v1.2/checkouts` (check the [documentation](https://www.pointcheckout.com/en/developers/api/api-integration) for more details). 
+Send new checkout request to PointCheckout's API (check the [documentation](https://www.pointcheckout.com/en/developers/api/api-integration) for more details). 
 
 #### Create PointCheckoutClient
 Create an object of PointCheckoutClient:
 
 ```java
-PointCheckoutClient pcClient = new PointCheckoutClient();
+PointCheckoutClient pcClient = new PointCheckoutClient(environment);
 ```
+> environment: specifies the environment of the app, use Environment.TEST for testing purposes.
 > Keep a reference of the created client to reuse the same instance
 
 #### Initialize
@@ -71,15 +69,15 @@ pcClient.initialize(context);
 To submit a payment call the static `pay` method of the `PointCheckoutClient`:
 
 ```java
-pcClient.pay(context, redirectUrl, resultUrl, new PointCheckoutEventListener() {
+pcClient.pay(context, checkoutKey, new PointCheckoutEventListener() {
                 @Override
-                public void onPaymentCancel() {
-                    System.out.println("!!PAYMENT CANCELLED");
+                public void onUpdate() {
+                    System.out.println("UPDATE CALLBACK");
                 }
 
                 @Override
-                public void onPaymentUpdate() {
-                    System.out.println("!!PAYMENT UPDATED");
+                public void onDismiss() {
+                    System.out.println("USER CLOSED THE MODAL");
                 }
         });
 ```
@@ -87,20 +85,20 @@ pcClient.pay(context, redirectUrl, resultUrl, new PointCheckoutEventListener() {
 | Parameter   | Description                                                         |
 |-------------|---------------------------------------------------------------------|
 | context     | Current activity context                                            |
-| redirectUrl | This URL is included in the checkout response from PointCheckout API|
-| resultUrl   | The same URL passed to PointCheckout API when creating the checkout |
+| checkoutKey | This key is included in the checkout response from PointCheckout API|
 | listener    | Listener that will be called on payment update or cancellation      |
 
 Calling the `pay` function will open a modal and the user will be able to login and complete the payment.
 
 #### PointCheckoutEventListener
 
-The event listener has two callbacks, `onPaymentCancel` and `onPaymentUpdate`.
+`PointCheckoutEventListener` has two callbacks, `onUpdate` and `onDismiss`.
 
-`onPaymentCancel` will only be called if the user closes the modal by clicking on close button.
+`onUpdate` will be called whenever the checkout status is updated (paid, cancelled, failed .etc). When this callback is invoked you should call PointCheckout API to fetch the new status of the checkout.
 
-`onPaymentUpdate` will be called whenever the checkout status is updated (paid, cancelled, failed .etc). When this callback is invoked you should call PointCheckout API to fetch the new status of the checkout.
+`onDismiss` will only be called if the user closes the modal by clicking on close button.
+
 
 
 ### Demo app
-You can use our Demo app as an example of how to integrate our SDK on your application. you can access it from [here](https://github.com/pointcheckout/android-sdk-demo). You can import the example app to Android Studio to see how the SDK can be used.
+You can use our Demo app as an example of how to integrate our SDK on your application. you can access it from [here](https://github.com/pointcheckout/sdk-demo). You can import the example app to Android Studio to see how the SDK can be used.
