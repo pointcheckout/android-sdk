@@ -168,14 +168,12 @@ public class PointCheckoutInternalClient {
     }
 
     private boolean isDone(String url) {
-        String COMPLETE = "/complete";
+        String COMPLETE = "/complete/";
         String SUCCESS = "/success-redirect";
         String CONFIRMATION = "/payment-confirmation";
 
-        return url.startsWith(environment.getUrl() + COMPLETE) ||
-                url.startsWith(environment.getUrl() + SUCCESS) ||
-                url.startsWith(environment.getUrl() + CONFIRMATION);
-
+        return ((url.startsWith(environment.getUrl()) || url.startsWith(environment.getPointCheckoutUrl()))
+        && (url.contains(COMPLETE) || url.contains(SUCCESS) || url.contains(CONFIRMATION)));
     }
 
     private String getPaymentUrl(String checkoutKey) {
