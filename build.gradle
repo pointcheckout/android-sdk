@@ -24,3 +24,11 @@ task clean(type: Delete) {
 }
 
 apply plugin: 'maven-publish'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.pc.android'
+            artifactId = 'sdk'
+        }
+    }
+}
