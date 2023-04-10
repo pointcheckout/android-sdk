@@ -24,16 +24,14 @@ task clean(type: Delete) {
 }
 
 apply plugin: 'maven-publish'
+
+
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenJava(MavenPublication) {
             groupId = 'com.pc.android'
             artifactId = 'sdk'
-            version '1.4.3'
-            artifact "com/github/pointcheckout/android-sdk/v1.4.3/android-sdk-v1.4.3.aar"
-
-            
+            version = '1.4.3'
         }
     }
 }
-
