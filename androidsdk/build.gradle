@@ -1,7 +1,9 @@
 apply plugin: 'com.android.library'
+// apply plugin: 'com.github.decendents.android-maven'
+// group = 'com.github.pointcheckout'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 33
 
 
     defaultConfig {
