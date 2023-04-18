@@ -1,9 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 33
+
     defaultConfig {
-        applicationId "com.pc.android.pcandroidsdk"
+        namespace "com.pc.android.pcandroidsdk"
         minSdkVersion 16
         targetSdkVersion 33
         versionCode 1

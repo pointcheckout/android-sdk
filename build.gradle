@@ -11,11 +11,15 @@ buildscript {
     }
 }
 
+plugins {
+    id 'maven-publish'
+}
+
 allprojects {
     repositories {
         google()
-        maven { url "https://jitpack.io" }
         mavenCentral()
+        maven { url "https://jitpack.io" }
     }
 }
 
@@ -23,12 +27,21 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+
 apply plugin: 'maven-publish'
+
 publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'com.pc.android'
             artifactId = 'sdk'
+            version = '1.0'
+        }
+
+        release(MavenPublication) {
+            groupId = 'com.pc.android'
+            artifactId = 'sdk'
+            version = '1.0'
         }
     }
 }
