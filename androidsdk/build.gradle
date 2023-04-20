@@ -7,7 +7,7 @@ plugins {
 // apply plugin: 'com.github.decendents.android-maven'
 // apply plugin: 'com.github.dcendents.android-maven'
 
-group = 'com.github.max2u'
+group = 'com.github.pointcheckout'
 version = '1.4.1'
 
 android {
@@ -63,9 +63,9 @@ afterEvaluate {
             // Creates a Maven publication called "release".
             release(MavenPublication) {
                 from components.release
-                groupId = 'com.github.max2u'
+                groupId = 'com.github.pointcheckout'
                 artifactId = 'android-sdk'
-                version = '1.0'
+                version = '1.4'
             }
         }
     }
