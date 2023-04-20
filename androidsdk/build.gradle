@@ -1,18 +1,25 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'maven-publish'
+}
+// apply plugin: 'com.android.library'
 // apply plugin: 'com.github.decendents.android-maven'
-// group = 'com.github.pointcheckout'
+// apply plugin: 'com.github.dcendents.android-maven'
+
+group = 'com.github.max2u'
+version = '1.4.1'
 
 android {
-    compileSdkVersion 33
-
+    compileSdkVersion 31
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 33
-        versionCode 1
-        versionName "1.4"
+        targetSdkVersion 31
+        versionCode 2
+        versionName "1.4.1"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
 
@@ -25,9 +32,20 @@ android {
         }
     }
 
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
 }
 
 dependencies {
+
+//    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+//    implementation 'androidx.core:core-ktx:1.7.0'
+//    implementation 'androidx.appcompat:appcompat:1.4.1'
+//    implementation 'com.google.android.material:material:1.5.0'
+
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation 'com.android.support:appcompat-v7:26.1.0'
@@ -36,4 +54,19 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.max2u'
+                artifactId = 'android-sdk'
+                version = '1.0'
+            }
+        }
+    }
 }
