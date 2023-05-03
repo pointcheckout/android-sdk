@@ -1,49 +1,34 @@
 
 buildscript {
-    ext.kotlin_version = "1.6.10"
+    ext.kotlin_version = '1.6.21'
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
-}
-
-plugins {
-    id 'maven-publish'
-    id "com.github.dcendents.android-maven" version "2.1"
 }
 
 allprojects {
     repositories {
         google()
-        mavenCentral()
         maven { url "https://jitpack.io" }
+        mavenCentral()
     }
 }
 
-//task clean(type: Delete) {
-//    delete rootProject.buildDir
-//}
-
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
 
 apply plugin: 'maven-publish'
-
 publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'com.pc.android'
             artifactId = 'sdk'
-            version = '1.0'
-        }
-
-        release(MavenPublication) {
-            groupId = 'com.pc.android'
-            artifactId = 'sdk'
-            version = '1.0'
         }
     }
 }

@@ -2,9 +2,8 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 33
-
     defaultConfig {
-        namespace "com.pc.android.pcandroidsdk"
+        applicationId "com.pc.android.pcandroidsdk"
         minSdkVersion 16
         targetSdkVersion 33
         versionCode 1
@@ -15,9 +14,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            consumerProguardFiles 'proguard-rules.pro'
         }
     }
+    namespace 'com.pc.android.pcandroidsdk'
 }
 
 dependencies {
