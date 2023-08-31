@@ -137,7 +137,21 @@ public class PointCheckoutInternalClient {
                 }
             }
         });
+        alert.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                try {
+                    if (modal.isShowing()){
+                        dismiss();
+                    }
+                    if (listener != null)
+                        listener.onDismiss();
 
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         LinearLayout wrapper = new LinearLayout(context);
         EditText keyboardHack = new EditText(context);
@@ -174,7 +188,7 @@ public class PointCheckoutInternalClient {
         String CONFIRMATION = "/payment-confirmation";
 
         return ((url.startsWith(environment.getUrl()) || url.startsWith(environment.getPointCheckoutUrl()))
-        && (url.contains(COMPLETE) || url.contains(SUCCESS) || url.contains(CONFIRMATION)));
+                && (url.contains(COMPLETE) || url.contains(SUCCESS) || url.contains(CONFIRMATION)));
     }
 
     private String getPaymentUrl(String checkoutKey) {
