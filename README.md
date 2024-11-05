@@ -23,9 +23,10 @@ Add the SDK to your project:
 
 ```gradle
   dependencies {
-          implementation 'com.github.pointcheckout.android-sdk:android-sdk:v1.4-b6'
+          implementation 'com.github.pointcheckout.android-sdk:android-sdk:v1.6'
   }
 ```
+
 
 #### Add permissions
 
