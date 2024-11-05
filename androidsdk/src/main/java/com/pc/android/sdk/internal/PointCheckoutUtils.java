@@ -38,7 +38,15 @@ public class PointCheckoutUtils {
         if (obj == null)
             throw new PointCheckoutException(String.format("%s can not be null", obj.getClass().getSimpleName()));
     }
-
+    public static void evaluateWithoutSafetyNetAsync(final Context context, final PointCheckoutSafetyNetListener listener) {
+        try {
+            // Directly call the callback, assuming the device is secure.
+            listener.callback(true, context.getString(R.string.pointcheckout_not_secure));
+        } catch (Exception e) {
+            e.printStackTrace();
+            listener.callback(false, context.getString(R.string.pointcheckout_not_secure));
+        }
+    }
     public static void evaluateSafetyNetAsync(final Context context, final PointCheckoutSafetyNetListener listener) {
 
         try {

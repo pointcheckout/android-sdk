@@ -5,12 +5,14 @@ package com.pc.android.sdk.internal;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -45,7 +47,7 @@ public class PointCheckoutInternalClient {
     }
 
     public void initialize(Context context) {
-        PointCheckoutUtils.evaluateSafetyNetAsync(context, new PointCheckoutSafetyNetListener() {
+        PointCheckoutUtils.evaluateWithoutSafetyNetAsync(context, new PointCheckoutSafetyNetListener() {
             @Override
             public void callback(boolean valid, String message) {
                 initialized = valid;
@@ -68,28 +70,7 @@ public class PointCheckoutInternalClient {
 
         if (initialized) {
             payUnsafe(context, checkoutKey, listener);
-            return;
         }
-
-
-        PointCheckoutUtils.evaluateSafetyNet(context, new PointCheckoutSafetyNetListener() {
-            @Override
-            public void callback(boolean valid, String message) {
-
-                if (!valid) {
-                    new AlertDialog.Builder(context)
-                            .setTitle(R.string.pointcheckout_error)
-                            .setMessage(message)
-                            .setNegativeButton(android.R.string.no, null)
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                    return;
-                }
-                initialized = valid;
-                payUnsafe(context, checkoutKey, listener);
-
-            }
-        });
     }
 
 
@@ -99,73 +80,81 @@ public class PointCheckoutInternalClient {
             final PointCheckoutEventListener listener) {
 
         AlertDialog.Builder alert = new AlertDialog.Builder(context);
+
+        // Create a vertical LinearLayout to hold the TextView and WebView
+        LinearLayout wrapper = new LinearLayout(context);
+        wrapper.setOrientation(LinearLayout.VERTICAL);
+
+        // Create a TextView for the loading message
+        TextView loadingText = new TextView(context);
+        loadingText.setText("Loading...");
+        loadingText.setVisibility(View.VISIBLE);  // Show initially
+
+        // Create the WebView
         WebView webView = new WebView(context);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.loadUrl(getPaymentUrl(checkoutKey));
         webView.setFocusableInTouchMode(true);
         webView.setFocusable(true);
+
+        // Set WebViewClient to handle page loading events
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String request) {
                 view.loadUrl(request);
-
                 if (isDone(request)) {
                     try {
                         dismiss();
-                        if (listener != null)
-                            listener.onUpdate();
+                        if (listener != null) listener.onUpdate();
                     } catch (PointCheckoutException e) {
                         e.printStackTrace();
                     }
                 }
-
-
                 return true;
             }
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                loadingText.setVisibility(View.VISIBLE);  // Show "Loading..." text when page starts loading
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                loadingText.setVisibility(View.GONE);  // Hide "Loading..." text when page finishes loading
+            }
         });
+
+        // Create an invisible EditText for keyboard handling
+        EditText keyboardHack = new EditText(context);
+        keyboardHack.setVisibility(View.GONE);
+
+        // Add TextView, WebView, and EditText to the wrapper layout once
+        wrapper.addView(loadingText, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        wrapper.addView(webView, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        wrapper.addView(keyboardHack, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        // Set the wrapper as the content view of the AlertDialog
+        alert.setView(wrapper);
 
         alert.setNegativeButton(R.string.pointcheckout_close, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 try {
                     dismiss();
-                    if (listener != null)
-                        listener.onDismiss();
+                    if (listener != null) listener.onDismiss();
                 } catch (PointCheckoutException e) {
                     e.printStackTrace();
                 }
             }
         });
-        alert.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                try {
-                    if (modal.isShowing()){
-                        dismiss();
-                    }
-                    if (listener != null)
-                        listener.onDismiss();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        LinearLayout wrapper = new LinearLayout(context);
-        EditText keyboardHack = new EditText(context);
-
-        keyboardHack.setVisibility(View.GONE);
-
-        wrapper.setOrientation(LinearLayout.VERTICAL);
-        wrapper.addView(webView, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        wrapper.addView(keyboardHack, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        alert.setView(wrapper);
 
         modal = alert.show();
-
     }
 
     /**
